@@ -22,7 +22,7 @@ get_flag() {
 
 # 🌍 تشخیص کشور
 echo "🌐 در حال شناسایی موقعیت سرور..."
-COUNTRY=$(curl -s https://ipinfo.io/country)
+COUNTRY_NAME=$(curl -s https://ip-api.com/line/?fields=country)
 FLAG=$(get_flag "$COUNTRY")
 
 if [[ "$COUNTRY" == "IR" ]]; then
