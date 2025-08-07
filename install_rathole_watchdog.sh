@@ -11,29 +11,20 @@ echo -e "${BLUE}===========================================${NC}"
 echo -e "${GREEN}     Rathole Tunnel Watchdog Installer     ${NC}"
 echo -e "${BLUE}===========================================${NC}"
 
-# 🔰 تابع ساخت پرچم از کد کشور
-get_flag() {
-  local CODE=${1^^}
-  local FIRST_CHAR=${CODE:0:1}
-  local SECOND_CHAR=${CODE:1:1}
-  printf "\U$(printf %x $((0x1F1E6 + $(printf '%d' "'$FIRST_CHAR") - 65)))"
-  printf "\U$(printf %x $((0x1F1E6 + $(printf '%d' "'$SECOND_CHAR") - 65)))"
-}
+# 🌍 گرفتن نام کشور و کد کشور
+COUNTRY_NAME=$(curl -s https://ipapi.co/country_name)
+COUNTRY_CODE=$(curl -s https://ipapi.co/country)
 
-# 🌍 تشخیص کشور
-echo "🌐 در حال شناسایی موقعیت سرور..."
-COUNTRY_NAME=$(curl -s https://ip-api.com/line/?fields=country)
-FLAG=$(get_flag "$COUNTRY")
+# 🎌 مشخص کردن پرچم بر اساس کد کشور
+case "$COUNTRY_CODE" in
+  "IR") FLAG="[IR]"; HEADER_COLOR=$RED;;
+  "FR") FLAG="[FR]"; HEADER_COLOR=$GREEN;;
+  "DE") FLAG="[DE]"; HEADER_COLOR=$GREEN;;
+  "US") FLAG="[US]"; HEADER_COLOR=$GREEN;;
+  *) FLAG="[??]"; HEADER_COLOR=$BLUE;;
+esac
 
-if [[ "$COUNTRY" == "IR" ]]; then
-    COUNTRY_NAME="IRAN"
-    HEADER_COLOR=$RED
-else
-    COUNTRY_NAME="FOREIGN"
-    HEADER_COLOR=$GREEN
-fi
-
-# 🎯 نمایش سربرگ کشور با پرچم
+# 🖼️ نمایش سربرگ
 echo -e "${HEADER_COLOR}"
 echo    "============================"
 echo -e "   Country: $COUNTRY_NAME  $FLAG"
@@ -41,7 +32,7 @@ echo    "============================"
 echo -e "${NC}"
 
 # 📥 گرفتن IP سمت مقابل
-if [[ "$COUNTRY" == "IR" ]]; then
+if [[ "$COUNTRY_CODE" == "IR" ]]; then
     read -p "🌍 لطفاً IP یا دامنه سرور خارجی را وارد کن: " REMOTE_IP
 else
     read -p "🏠 لطفاً IP سرور داخل ایران را وارد کن: " REMOTE_IP
@@ -62,7 +53,6 @@ echo -e "${GREEN}✅ تنظیمات در $CONFIG_FILE ذخیره شد.${NC}"
 SCRIPT_PATH="/usr/local/bin/rathole-watchdog.sh"
 sudo bash -c "cat > $SCRIPT_PATH" << 'EOF'
 #!/bin/bash
-
 CONFIG_FILE="/etc/rathole-watchdog.conf"
 [ ! -f "$CONFIG_FILE" ] && echo "⚠️ فایل تنظیمات وجود ندارد." && exit 1
 source "$CONFIG_FILE"
@@ -127,6 +117,6 @@ echo -e "${BLUE}===========================================${NC}"
 echo -e "${GREEN}✅ نصب کامل شد!${NC}"
 echo -e "${BLUE}⏱ تایمر هر 90 ثانیه وضعیت تونل را بررسی می‌کند.${NC}"
 echo -e "${BLUE}📂 لاگ‌ها: /var/log/rathole-watchdog.log${NC}"
-echo -e "${BLUE}🔁 اگر تونل قطع شود، Rathole  ریستارت خواهد شد.${NC}"
-echo -e "${BLUE}🎌 پرچم و موقعیت شناسایی‌شده: $COUNTRY_NAME $FLAG${NC}"
+echo -e "${BLUE}🔁 در صورت قطعی، Rathole ریستارت خواهد شد.${NC}"
+echo -e "${BLUE}🎌 موقعیت شناسایی‌شده: $COUNTRY_NAME  $FLAG${NC}"
 echo -e "${BLUE}===========================================${NC}"
